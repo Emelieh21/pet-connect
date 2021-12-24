@@ -3,8 +3,11 @@ library(shinyWidgets)
 library(shinythemes)
 library(auth0)
 library(shinyjs)
+library(RPostgres)
+library(uuid)
 
 source("functions.R")
+options(shiny.port = 8080)
 
 ui <- fluidPage(theme = shinytheme("flatly"),
                 # Make modal dialog a bit wider
@@ -17,7 +20,9 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                 useShinyjs(),
                 # Button to add your pet
                 actionButton("add_pet", "Add your pet", icon("plus"), 
-                             style="color:#fff;background-color:#00a884;font-size:200%;margin:35px;"))
+                             style="color:#fff;background-color:#00a884;font-size:200%;margin:35px;"),
+                uiOutput("pets")
+                )
                 
 server <- function(input, output, session) {
   # =========================== #
@@ -38,7 +43,7 @@ server <- function(input, output, session) {
         ),
         # Add info ####
         div(style="display: inline-block;vertical-align:top;margin-top:20px; margin-left:20px;", 
-            textInput("pet_name","Name: ", value = session$userData$auth0_info$nickname),
+            textInput("pet_name","Name: "),
             div(style = "margin-top: -20px"), # Reduce space
             HTML("<em style='font-size: 8px;'>* This will be publicly visible</em>"),
             textAreaInput("pet_info", "Info: "),
@@ -99,6 +104,40 @@ server <- function(input, output, session) {
     if (input$agree == FALSE) {
         runjs('document.getElementById("agree_text").style.color = "red";')    
     }
+    # Save data to pets table ####
+    con <- RPostgres::dbConnect(RPostgres::Postgres(), dbname = "kindly-possum-2518.defaultdb", 
+                                host = "free-tier5.gcp-europe-west1.cockroachlabs.cloud", 
+                                port = 26257, user = "emelieh21", 
+                                password = readLines("local/pw.txt"))
+    dat <- as.data.frame(session$userData$auth0_info$sub, stringsAsFactors = FALSE) 
+    names(dat) <- "user"
+    dat$petId <- UUIDgenerate()
+    dat$petName <- input$pet_name
+    dat$petInfo <- input$pet_info
+    dat$phone <- input$phone_number
+    dat$email <- input$email
+    dat$image <- ifelse(is.null(input$myFile), "",
+                        base64enc::dataURI(file = input$myFile$datapath, mime = "image/png"))
+    dbWriteTable(con, "pets", dat, overwrite = FALSE, append = TRUE)
+    dbDisconnect(con)
+    
+    # Remove popup
+    removeModal()
+  })
+  # Show user his or her own pets
+  output$pets <- renderUI({
+    con <- RPostgres::dbConnect(RPostgres::Postgres(), dbname = "kindly-possum-2518.defaultdb", 
+                                host = "free-tier5.gcp-europe-west1.cockroachlabs.cloud", 
+                                port = 26257, user = "emelieh21", 
+                                password = readLines("local/pw.txt"))
+    pets <- dbGetQuery(con, paste0("select * from pets where user = '",session$userData$auth0_info$sub,"'"))
+    pets_html <- NULL
+    for (i in c(1:nrow(pets))) {
+      pet_img <- paste0("<img src='",pets$image[i],"'/></br>")
+      print(pet_img)
+      pets_html <- paste0(pets_html, pet_img)
+    }
+    return(HTML(pets_html))
   })
 }
 
