@@ -152,8 +152,11 @@ server <- function(input, output, session) {
                                    select pets.pet_id, pet_name, pet_info, t.scan_count, t.last_scan
                                    from pets 
                                    left join t ON t.pet_id = pets.pet_id
-                                   where user_name = 'auth0|61c56c379397e6006af84662'"))
+                                   where user_name = '",session$userData$auth0_info$sub,"'"))
     dbDisconnect(con)
+    if (nrow(pets) == 0) {
+      return(NULL)
+    }
     pets_html <- h1("Your pets")
     for (i in c(1:nrow(pets))) {
       pet_id = pets$pet_id[i]
