@@ -2,7 +2,7 @@
 addHeader <- function (..., moreInfoLink = "https://github.com/Emelieh21/pet-connect", 
                        moreInfoText = "About", 
                        logo_src = "https://raw.githubusercontent.com/Emelieh21/pet-connect/master/www/logo-wide.png") { 
-  div(tags$header(div(style = "background-color:#00a884;padding:15px;width:105%;margin-left:-1em;",
+  div(tags$header(div(style = "background-color:#00a884;padding:15px;width:105%;margin-left:-1em;margin-right:2em;",
                       tags$img(style = "margin-left:20px", 
                                src = logo_src), 
                       ...)), absolutePanel(top = 35, right = 25, 

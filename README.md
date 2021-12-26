@@ -9,7 +9,9 @@ A few weeks ago my parents found a lost dog in front of their house. It didn't h
 It is a very simple system. On https://emelieh21.shinyapps.io/pet-connect you can sign up and register your pet(s) with a picture, its name and the info that you would like to share. Once registered, the app creates a QR code for you. You can print this code out and stick on any tag you can attach to the collar of your pet. Once someone scans the QR code of your pet, it will show that person the information you shared about your pet. It will also inform you via email and SMS (if you choose to get notifications) about that fact that someone scanned your pet's code. This way you already know someone found it.
 
 ## How we built it
-The app is built with R shiny and runs on shinyapps.io. Auth0 is used for the authentication of the user, Twilio is used for the SMS service and CockroachDB is used to store the apps data. For all details, see the github page.
+The app is built with R shiny and runs on shinyapps.io. Auth0 is used for the authentication of the user, Twilio is used for the SMS service and CockroachDB is used to store the apps data. For all details, see the diagram below:
+
+![image](assets/petconnect-user-flow.png)
 
 ## Challenges we ran into
 Combining working on this hackathon with celebrating Christmas with the family is quite a challenge :)

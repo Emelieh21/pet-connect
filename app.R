@@ -161,9 +161,9 @@ server <- function(input, output, session) {
     for (i in c(1:nrow(pets))) {
       pet_id = pets$pet_id[i]
       png(paste0("www/",pet_id,".png"))
-      plot(qr_code(paste0("https://emelieh21.shinyapps.io/pet-connect-open/?pet_id=",pets$pet_id[i]), ecl = "Q"))
+      # Generate QR codes ####
+      plot(qr_code(paste0("https://emelieh21.shinyapps.io/pet-connect-open/?pet_id=",pets$pet_id[i],"&mode=scanned"), ecl = "Q"))
       dev.off()
-      # pet_img <- img(src = pets$image[i], width = 150)
       pet_div <- div(style='margin-left:5px;',
         div(style="display: inline-block;vertical-align:top;margin-top:20px; margin-left:20px;", 
             img(src = paste0(pet_id,".png"), width = 150)),
